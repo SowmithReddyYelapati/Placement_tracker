@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+*.class
+*.jar
+*.war
+*.ear
+target/
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Database files
+*.sqlite
+*.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Editor directories
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Java
+*.class
+*.jar
+!**/src/**/*.jar
+
+# Spring Boot
+spring-boot/
