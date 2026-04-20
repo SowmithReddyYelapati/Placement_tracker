@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Plus, TrendingUp, Users, Target, Briefcase, Zap, Activity,
-  Flame, Calendar, AlertCircle, Clock
+  Flame, Calendar, AlertCircle, Clock, ChevronRight
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 import { Link } from 'react-router-dom';
-import { analyticsAPI } from '../services/api';
+import { analyticsAPI, applicationAPI } from '../services/api';
 import ApplicationModal from '../components/ApplicationModal';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 
 const Dashboard = () => {
@@ -17,6 +17,7 @@ const Dashboard = () => {
   const [weekly, setWeekly] = useState([]);
   const [deadlines, setDeadlines] = useState({ today: [], tomorrow: [], missed: [] });
   const [streak, setStreak] = useState(0);
+  const [interviews, setInterviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const alertedRef = useRef(false);
@@ -24,16 +25,24 @@ const Dashboard = () => {
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const [sRes, wRes, dRes, strRes] = await Promise.allSettled([
+      const [sRes, wRes, dRes, strRes, appsRes] = await Promise.allSettled([
         analyticsAPI.getStats(),
         analyticsAPI.getWeeklyActivity(),
         analyticsAPI.getDeadlineAlerts(),
         analyticsAPI.getStreakData(),
+        applicationAPI.getAll()
       ]);
       if (sRes.status === 'fulfilled') setStats(sRes.value.data);
       if (wRes.status === 'fulfilled') setWeekly(wRes.value.data || []);
       if (dRes.status === 'fulfilled') setDeadlines(dRes.value.data || { today: [], tomorrow: [], missed: [] });
       if (strRes.status === 'fulfilled') setStreak(strRes.value.data?.streak || 0);
+      if (appsRes.status === 'fulfilled') {
+        const upcoming = appsRes.value.data
+          .filter(a => a.interviewDate && new Date(a.interviewDate) >= new Date().setHours(0,0,0,0))
+          .sort((a,b) => new Date(a.interviewDate) - new Date(b.interviewDate))
+          .slice(0, 3);
+        setInterviews(upcoming);
+      }
     } catch (err) {
       console.error('Dashboard fetch error', err);
     } finally {
@@ -211,91 +220,124 @@ const Dashboard = () => {
         ))}
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Weekly Activity */}
+      {/* Activity & Pipeline Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Weekly Activity (Left 2/3) */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
-          className="lg:col-span-2 bento-card"
+          initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}
+          className="lg:col-span-2 bento-card flex flex-col"
         >
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-8">
             <div>
-              <h3 className="font-black text-white text-base">Weekly Activity</h3>
-              <p className="text-slate-500 text-xs mt-0.5">Applications per day this week</p>
+              <h3 className="font-black text-white text-base">Weekly Momentum</h3>
+              <p className="text-slate-500 text-xs mt-0.5">Application frequency this week</p>
             </div>
-            <Calendar size={17} className="text-slate-600" />
+            <Activity size={18} className="text-indigo-500" />
           </div>
-          <div className="h-[230px]">
+          
+          <div className="flex-1 h-[300px]">
             {weekly.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={weekly} barGap={6}>
+                <BarChart data={weekly} barGap={8}>
                   <defs>
-                    <linearGradient id="wkGrad" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#6366f1" stopOpacity={1} />
-                      <stop offset="100%" stopColor="#818cf8" stopOpacity={0.25} />
+                      <stop offset="100%" stopColor="#4f46e5" stopOpacity={0.2} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                  <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11, fontWeight: 600 }} />
-                  <YAxis axisLine={false} tickLine={false} allowDecimals={false} tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11, fontWeight: 600 }} />
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
+                  <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11, fontWeight: 700 }} />
+                  <YAxis axisLine={false} tickLine={false} allowDecimals={false} tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11, fontWeight: 700 }} />
                   <Tooltip
-                    cursor={{ fill: 'rgba(99,102,241,0.06)', radius: 8 }}
-                    contentStyle={{ background: 'rgba(10,10,28,0.95)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}
-                    itemStyle={{ color: '#c7d2fe', fontSize: '13px' }}
-                    labelStyle={{ color: '#64748b', fontSize: '11px', marginBottom: '4px' }}
-                    formatter={(v) => [`${v} applied`, '']}
+                    cursor={{ fill: 'rgba(255,255,255,0.03)', radius: 10 }}
+                    contentStyle={{ background: '#0a0a1c', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 20px 50px rgba(0,0,0,0.4)', padding: '12px' }}
+                    itemStyle={{ color: '#818cf8', fontSize: '12px', fontWeight: 700 }}
+                    labelStyle={{ color: '#475569', fontSize: '10px', fontWeight: 800, marginBottom: '4px', textTransform: 'uppercase' }}
                   />
-                  <Bar dataKey="count" fill="url(#wkGrad)" radius={[7, 7, 0, 0]} barSize={28} />
+                  <Bar dataKey="count" fill="url(#barGrad)" radius={[10, 10, 0, 0]} barSize={32} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex items-center justify-center h-full text-slate-700 text-sm font-semibold">
-                No activity yet — start applying!
+              <div className="flex flex-col items-center justify-center h-full gap-3 opacity-20">
+                <TrendingUp size={40} />
+                <p className="text-[10px] font-black uppercase tracking-widest">No activity detected</p>
               </div>
             )}
           </div>
         </motion.div>
 
-        {/* Status Breakdown */}
-        <motion.div
-          initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}
-          className="bento-card"
-        >
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h3 className="font-black text-white text-base">Pipeline</h3>
-              <p className="text-slate-500 text-xs mt-0.5">Status breakdown</p>
+        {/* Status Breakdown & Interviews (Right 1/3) */}
+        <div className="flex flex-col gap-6">
+          {/* Upcoming Interviews widget */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
+            className="bento-card"
+          >
+            <div className="flex items-center justify-between mb-5">
+              <h4 className="text-xs font-black text-white uppercase tracking-widest">Interviews</h4>
+              <Sparkles size={14} className="text-purple-400" />
             </div>
-            <TrendingUp size={17} className="text-slate-600" />
-          </div>
-          <div className="space-y-3.5">
-            {stats?.statusDistribution?.length > 0 ? (
-              stats.statusDistribution.map((item, i) => {
-                const total = m.totalApplications || 1;
-                const pct = Math.round((item.count / total) * 100);
-                const color = statusColors[item.status] || 'bg-slate-500';
-                return (
-                  <div key={i}>
-                    <div className="flex justify-between items-center mb-1.5">
-                      <span className="text-xs font-semibold text-slate-400">{item.status}</span>
-                      <span className="text-xs font-black text-white">{item.count}</span>
+            <div className="space-y-3">
+              {interviews.length > 0 ? interviews.map((int, i) => (
+                <div key={i} className="p-3 bg-white/3 border border-white/5 rounded-2xl flex items-center justify-between group hover:border-purple-500/30 transition-all">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 text-[10px] font-black">
+                      {int.Company?.name?.charAt(0)}
                     </div>
-                    <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ delay: 0.3 + i * 0.05, duration: 0.6 }}
-                        className={`h-full ${color} rounded-full`}
-                      />
+                    <div>
+                      <div className="text-xs font-bold text-white group-hover:text-purple-300 transition-colors">{int.Company?.name}</div>
+                      <div className="text-[10px] text-slate-500">{int.role}</div>
                     </div>
                   </div>
-                );
-              })
-            ) : (
-              <div className="py-10 text-center text-slate-700 text-sm font-medium">
-                No applications yet
-              </div>
-            )}
-          </div>
-        </motion.div>
+                  <div className="text-right">
+                    <div className="text-[10px] font-bold text-purple-400">{new Date(int.interviewDate).toLocaleDateString([], { month: 'short', day: 'numeric' })}</div>
+                  </div>
+                </div>
+              )) : (
+                <div className="py-6 text-center text-slate-800 text-[10px] font-black uppercase tracking-widest italic opacity-30">No sessions</div>
+              )}
+            </div>
+            <Link to="/ai-prep" className="w-full mt-4 flex items-center justify-center gap-2 py-2 bg-purple-600/10 border border-purple-500/20 rounded-xl text-[9px] font-black text-purple-400 uppercase tracking-[0.15em] hover:bg-purple-600/20 transition-all">
+              Launch AI Prep
+            </Link>
+          </motion.div>
+
+          {/* Pipeline Breakdown widget */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}
+            className="bento-card flex-1"
+          >
+            <div className="flex items-center justify-between mb-5">
+              <h4 className="text-xs font-black text-white uppercase tracking-widest">Pipeline</h4>
+              <TrendingUp size={14} className="text-indigo-400" />
+            </div>
+            <div className="space-y-4">
+              {stats?.statusDistribution?.length > 0 ? (
+                stats.statusDistribution.map((item, i) => {
+                  const total = stats?.metrics?.totalApplications || 1;
+                  const pct = Math.round((item.count / total) * 100);
+                  const color = statusColors[item.status] || 'bg-slate-500';
+                  return (
+                    <div key={i}>
+                      <div className="flex justify-between items-center mb-1.5 px-0.5">
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{item.status}</span>
+                        <span className="text-xs font-black text-white">{item.count}</span>
+                      </div>
+                      <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ delay: 0.3 + i * 0.05, duration: 0.6 }}
+                          className={`h-full ${color} rounded-full`}
+                        />
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="py-8 text-center text-slate-800 text-[10px] font-black uppercase tracking-widest italic opacity-30">Empty Pipe</div>
+              )}
+            </div>
+          </motion.div>
+        </div>
       </div>
 
       <ApplicationModal

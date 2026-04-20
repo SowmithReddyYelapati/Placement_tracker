@@ -8,7 +8,7 @@ const includeClause = [
 
 exports.createApplication = async (req, res) => {
   try {
-    const { companyName, role, appliedDate, status, resumeId, jobLink, notes, priority, deadline } = req.body;
+    const { companyName, role, appliedDate, status, resumeId, jobLink, notes, priority, deadline, interviewDate } = req.body;
 
     if (!companyName || !role) {
       return res.status(400).json({ message: 'Company name and role are required' });
@@ -27,6 +27,7 @@ exports.createApplication = async (req, res) => {
       priority: priority || 'Medium',
       jobLink: jobLink || '',
       notes: notes || '',
+      interviewDate: interviewDate || null,
       UserId: req.user.id,
       CompanyId: company.id,
       linkedResumeId: resumeId || null
@@ -86,7 +87,7 @@ exports.updateApplicationStatus = async (req, res) => {
 exports.updateApplication = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, priority, notes, role, jobLink, deadline, companyName, resumeId } = req.body;
+    const { status, priority, notes, role, jobLink, deadline, companyName, resumeId, interviewDate } = req.body;
     const application = await Application.findOne({ where: { id, UserId: req.user.id } });
     if (!application) return res.status(404).json({ message: 'Application not found' });
 
@@ -97,6 +98,7 @@ exports.updateApplication = async (req, res) => {
     if (jobLink !== undefined) application.jobLink = jobLink;
     if (deadline !== undefined) application.deadline = deadline || null;
     if (resumeId !== undefined) application.linkedResumeId = resumeId || null;
+    if (interviewDate !== undefined) application.interviewDate = interviewDate || null;
 
     if (companyName) {
       let company = await Company.findOne({ where: { name: companyName } });

@@ -44,6 +44,7 @@ const ApplicationModal = ({ isOpen, onClose, onRefresh, editData = null }) => {
           ? String(editData.appliedDate).split('T')[0]
           : new Date().toISOString().split('T')[0],
         deadline: editData.deadline ? String(editData.deadline).split('T')[0] : '',
+        interviewDate: editData.interviewDate ? String(editData.interviewDate).split('T')[0] : '',
         resumeId: editData.linkedResume?.id || ''
       });
     } else {
@@ -51,7 +52,7 @@ const ApplicationModal = ({ isOpen, onClose, onRefresh, editData = null }) => {
         companyName: '', role: '', jobLink: '', notes: '',
         status: 'Applied', priority: 'Medium',
         appliedDate: new Date().toISOString().split('T')[0],
-        deadline: '', resumeId: ''
+        deadline: '', interviewDate: '', resumeId: ''
       });
     }
   }, [isOpen, editData]);

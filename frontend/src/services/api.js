@@ -115,8 +115,29 @@ const MOCK_DATA = {
     { id: 3, name: 'Meta', type: 'Product Based', notes: 'Fast paced interviews.', questionsAsked: 'String algorithms, Recursive problems' }
   ],
   applications: [
-    { id: 1, Company: { name: 'Google' }, role: 'SDE Intern', status: 'Interview', priority: 'Dream', appliedDate: '2024-03-01', deadline: '2024-04-20', notes: 'Focus on System Design' },
-    { id: 2, Company: { name: 'Amazon' }, role: 'Software Dev', status: 'OA', priority: 'Dream', appliedDate: '2024-03-05', deadline: '2024-04-21', notes: 'Leadership principles' },
+    { 
+      id: 1, 
+      role: 'SDE Intern', 
+      status: 'Interview', 
+      priority: 'Dream', 
+      appliedDate: '2024-03-01', 
+      jobLink: 'https://careers.google.com',
+      notes: 'Focus on System Design and Scalability.',
+      interviewDate: new Date(Date.now() + 1000*60*60*24*2).toISOString().split('T')[0],
+      Company: { name: 'Google' }
+    },
+    {
+      id: 2,
+      role: 'Frontend Engineer',
+      status: 'Interview',
+      priority: 'Dream',
+      appliedDate: '2024-03-12',
+      deadline: '2024-04-10',
+      jobLink: 'https://metacareers.com',
+      notes: 'Prepare React and Performance optimization topics.',
+      interviewDate: new Date().toISOString().split('T')[0],
+      Company: { name: 'Meta' }
+    },
     { id: 3, Company: { name: 'Meta' }, role: 'Product Engineer', status: 'Applied', priority: 'Medium', appliedDate: '2024-03-10', deadline: null, notes: '' },
     { id: 4, Company: { name: 'Netflix' }, role: 'Backend Developer', status: 'Rejected', priority: 'Dream', appliedDate: '2024-02-15', deadline: null, notes: '' },
     { id: 5, Company: { name: 'Adobe' }, role: 'SDE 1', status: 'Selected', priority: 'Medium', appliedDate: '2024-02-20', deadline: null, notes: 'Got the offer!' }

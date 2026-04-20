@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
 import {
   Search, Plus, ExternalLink, Trash2, Edit2,
   LayoutGrid, Table2, Briefcase, Clock, AlertCircle,
-  CheckCircle2, Circle, ChevronRight, Filter, Download
+  CheckCircle2, Circle, ChevronRight, Filter, Download,
+  Kanban as KanbanIcon
 } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { applicationAPI } from '../services/api';
@@ -95,7 +95,7 @@ export default function Applications() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState(initialStatus);
   const [sortBy, setSortBy] = useState('recent');
-  const [view, setView] = useState('table');
+  const [view, setView] = useState('table'); // table, card, board
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editApp, setEditApp] = useState(null);
 
@@ -256,15 +256,24 @@ export default function Applications() {
         <div className="flex gap-1 bg-white/5 border border-white/10 rounded-xl p-1">
           <button
             onClick={() => setView('table')}
+            title="Table View"
             className={`p-2 rounded-lg transition-all ${view === 'table' ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:text-white'}`}
           >
             <Table2 size={15} />
           </button>
           <button
             onClick={() => setView('card')}
+            title="Card View"
             className={`p-2 rounded-lg transition-all ${view === 'card' ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:text-white'}`}
           >
             <LayoutGrid size={15} />
+          </button>
+          <button
+            onClick={() => setView('board')}
+            title="Kanban Board"
+            className={`p-2 rounded-lg transition-all ${view === 'board' ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:text-white'}`}
+          >
+            <KanbanIcon size={15} />
           </button>
         </div>
       </div>
@@ -481,6 +490,69 @@ export default function Applications() {
                   );
                 })}
           </AnimatePresence>
+        </div>
+      )}
+
+      {/* ── KANBAN BOARD ── */}
+      {view === 'board' && (
+        <div className="flex gap-6 overflow-x-auto pb-8 -mx-8 px-8 custom-scrollbar">
+          {STATUSES.filter(s => s !== 'all').map((status) => {
+            const colApps = apps.filter(a => a.status === status);
+            const s = STATUS_STYLE[status] || STATUS_STYLE.Applied;
+            return (
+              <div key={status} className="flex-shrink-0 w-80">
+                <div className="flex items-center justify-between mb-4 px-2">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${s.dot}`} />
+                    <h3 className="text-sm font-black text-white uppercase tracking-widest">{status}</h3>
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-600 bg-white/5 px-2 py-0.5 rounded-lg">
+                    {colApps.length}
+                  </span>
+                </div>
+                
+                <div className="space-y-4 min-h-[500px] bg-white/[0.02] border border-dashed border-white/5 rounded-3xl p-4">
+                  <AnimatePresence>
+                    {colApps.map((app, j) => {
+                      const ps = PRIORITY_STYLE[app.priority] || PRIORITY_STYLE.Medium;
+                      return (
+                        <motion.div
+                          key={app.id}
+                          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                          className="glass-card p-5 group cursor-pointer hover:border-indigo-500/30"
+                          onClick={() => openEdit(app)}
+                        >
+                          <div className="flex justify-between items-start mb-3">
+                            <div className="w-9 h-9 bg-indigo-600/10 border border-indigo-500/20 rounded-xl flex items-center justify-center text-indigo-400 font-black text-sm">
+                              {app.Company?.name?.charAt(0)}
+                            </div>
+                            <div className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${ps.bg} ${ps.text} ${ps.border}`}>
+                              {app.priority}
+                            </div>
+                          </div>
+                          <div className="font-bold text-white text-sm leading-tight mb-1 group-hover:text-indigo-300 transition-colors uppercase tracking-tight">{app.Company?.name}</div>
+                          <div className="text-xs text-slate-500 font-medium truncate mb-4">{app.role}</div>
+                          
+                          <div className="flex items-center justify-between pt-3 border-t border-white/5">
+                            <div className="flex items-center gap-1.5 text-[9px] text-slate-600">
+                                <Clock size={10} />
+                                {app.appliedDate ? new Date(app.appliedDate).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '—'}
+                            </div>
+                            <ChevronRight size={12} className="text-slate-800 group-hover:text-indigo-400 transition-colors" />
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </AnimatePresence>
+                  {colApps.length === 0 && (
+                    <div className="py-12 text-center text-slate-800 text-[10px] font-black uppercase tracking-widest italic opacity-20">
+                      Empty Pipe
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
 
