@@ -48,11 +48,11 @@ export const analyticsAPI = {
     }
     return api.get('/analytics/weekly');
   },
-  getDeadlineAlerts: () => {
+  getDeadlineAlerts: (days = 2) => {
     if (localStorage.getItem('placement_token') === 'demo-token') {
       return Promise.resolve({ data: MOCK_DATA.deadlines });
     }
-    return api.get('/analytics/deadlines');
+    return api.get('/analytics/deadlines', { params: { days } });
   },
   getStreakData: () => {
     if (localStorage.getItem('placement_token') === 'demo-token') {
@@ -164,6 +164,17 @@ export const companyAPI = {
 
 export const aiAPI = {
   generateInsights: (companyName) => api.post('/ai/insights', { companyName }),
+  chat: (data) => {
+    if (localStorage.getItem('placement_token') === 'demo-token') {
+      const mockAnswers = [
+        "Demo Insight: Focus on System Design for big tech companies.",
+        "Demo Insight: Referral counts are 2x more effective than direct application.",
+        "Demo Insight: Your SDE resume matches 85% of job descriptions in your stack."
+      ];
+      return Promise.resolve({ data: { answer: `[Demo Mode] ${mockAnswers[Math.floor(Math.random() * mockAnswers.length)]}` } });
+    }
+    return api.post('/ai/chat', data);
+  }
 };
 
 export default api;

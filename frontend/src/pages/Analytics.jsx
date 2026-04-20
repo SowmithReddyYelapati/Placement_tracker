@@ -24,7 +24,7 @@ const MetricCard = ({ label, value, icon: Icon, color, bg, border, delay }) => (
         <Icon size={17} />
       </div>
     </div>
-    <div className="text-4xl font-black text-white">{value}</div>
+    <div className="text-4xl font-black !text-[var(--text-color)]">{value}</div>
     <div className={`absolute -bottom-6 -right-6 w-20 h-20 rounded-full blur-2xl opacity-15 ${bg}`} />
   </motion.div>
 );
@@ -96,9 +96,9 @@ export default function Analytics() {
   const CustomTooltip = ({ active, payload }) => {
     if (!active || !payload?.length) return null;
     return (
-      <div className="bg-[#0a0a1c] border border-white/10 rounded-2xl px-4 py-3 shadow-2xl">
-        <p className="text-slate-400 text-xs font-medium mb-1">{payload[0].name}</p>
-        <p className="text-white text-base font-black">{payload[0].value}</p>
+      <div className="bg-[var(--panel-bg)] border border-[var(--border-color)] rounded-2xl px-4 py-3 shadow-2xl backdrop-blur-3xl">
+        <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1">{payload[0].name}</p>
+        <p className="!text-[var(--text-color)] text-lg font-black">{payload[0].value}</p>
       </div>
     );
   };
@@ -106,9 +106,9 @@ export default function Analytics() {
   const CustomPieTooltip = ({ active, payload }) => {
     if (!active || !payload?.length) return null;
     return (
-      <div className="bg-[#0a0a1c] border border-white/10 rounded-2xl px-4 py-3 shadow-2xl">
-        <p className="text-slate-400 text-xs font-medium">{payload[0].name}</p>
-        <p className="text-white text-lg font-black">{payload[0].value} apps</p>
+      <div className="bg-[var(--panel-bg)] border border-[var(--border-color)] rounded-2xl px-4 py-3 shadow-2xl backdrop-blur-3xl">
+        <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-0.5">{payload[0].name}</p>
+        <p className="!text-[var(--text-color)] text-base font-black">{payload[0].value} apps</p>
       </div>
     );
   };
@@ -121,8 +121,8 @@ export default function Analytics() {
           <BarChart2 size={15} />
           <span className="text-[10px] font-semibold uppercase tracking-widest">Analytics</span>
         </div>
-        <h1 className="text-3xl font-black text-white tracking-tight">Your Insights</h1>
-        <p className="text-slate-500 text-sm mt-1">A complete view of your placement performance.</p>
+        <h1 className="text-3xl font-black !text-[var(--text-color)] tracking-tight">Your Insights</h1>
+        <p className="text-slate-500 text-sm mt-1 font-medium opacity-80">A complete view of your placement performance.</p>
       </div>
 
       {/* Metric Cards */}
@@ -140,8 +140,8 @@ export default function Analytics() {
         >
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="font-black text-white text-base">Weekly Applications</h3>
-              <p className="text-slate-500 text-xs mt-0.5">Last 7 days activity</p>
+              <h3 className="font-black !text-[var(--text-color)] text-base">Weekly Applications</h3>
+              <p className="text-slate-500 text-xs mt-0.5 font-medium opacity-80">Last 7 days activity</p>
             </div>
             <TrendingUp size={17} className="text-slate-600" />
           </div>
@@ -155,9 +155,9 @@ export default function Analytics() {
                       <stop offset="100%" stopColor="#818cf8" stopOpacity={0.2} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                  <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} />
-                  <YAxis axisLine={false} tickLine={false} allowDecimals={false} tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} />
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="var(--border-color)" />
+                  <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: 'var(--text-color)', fontSize: 11, opacity: 0.4 }} />
+                  <YAxis axisLine={false} tickLine={false} allowDecimals={false} tick={{ fill: 'var(--text-color)', fontSize: 11, opacity: 0.4 }} />
                   <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(99,102,241,0.06)', radius: 8 }} />
                   <Bar dataKey="count" name="Applications" fill="url(#aGrad)" radius={[7, 7, 0, 0]} barSize={26} />
                 </BarChart>
@@ -204,7 +204,7 @@ export default function Analytics() {
                       <div className="w-2.5 h-2.5 rounded-full" style={{ background: item.color }} />
                       <span className="text-xs text-slate-400 font-medium">{item.name}</span>
                     </div>
-                    <span className="text-xs font-black text-white">{item.value}</span>
+                    <span className="text-xs font-black !text-[var(--text-color)]">{item.value}</span>
                   </div>
                 ))}
               </div>

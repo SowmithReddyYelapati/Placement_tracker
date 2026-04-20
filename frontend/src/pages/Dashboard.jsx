@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Plus, TrendingUp, Users, Target, Briefcase, Zap, Activity,
-  Flame, Calendar, AlertCircle, Clock, ChevronRight
+  Flame, Calendar, AlertCircle, Clock, ChevronRight, Sparkles
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
@@ -124,7 +124,7 @@ const Dashboard = () => {
             <Activity size={15} />
             <span className="text-[10px] font-semibold uppercase tracking-widest">Overview</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight">
+          <h1 className="text-3xl md:text-4xl font-black !text-[var(--text-color)] tracking-tight">
             Welcome back! 👋
           </h1>
           <p className="text-slate-500 mt-1.5 text-sm font-medium">
@@ -149,8 +149,8 @@ const Dashboard = () => {
         >
           <Flame size={22} className="text-orange-400 shrink-0" />
           <div>
-            <span className="font-black text-white">{streak}-Day Streak! </span>
-            <span className="text-slate-400 text-sm">
+            <span className="font-black !text-[var(--text-color)]">{streak}-Day Streak! </span>
+            <span className="text-slate-500 text-sm font-medium">
               You've applied consistently for {streak} day{streak > 1 ? 's' : ''}. Keep it up! 🔥
             </span>
           </div>
@@ -177,7 +177,7 @@ const Dashboard = () => {
                     <Icon size={17} />
                   </div>
                 </div>
-                <div className="text-3xl md:text-4xl font-black text-white group-hover:translate-x-1 transition-transform">{c.value}</div>
+                <div className="text-3xl md:text-4xl font-black !text-[var(--text-color)] group-hover:translate-x-1 transition-transform">{c.value}</div>
                 <div className="mt-2 text-[10px] font-bold text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity">View all →</div>
                 <div className={`absolute -bottom-6 -right-6 w-20 h-20 rounded-full blur-2xl opacity-15 ${c.bg} group-hover:opacity-25 transition-opacity`} />
               </motion.div>

@@ -12,7 +12,10 @@ const aiRoutes = require('./routes/aiRoutes');
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
 app.use(express.json());
 
 // Routes
@@ -29,8 +32,45 @@ app.get('/health', (req, res) => res.send('Placement Intelligence API is healthy
 const PORT = process.env.PORT || 5000;
 
 // Sync Database and Start Server
-sequelize.sync({ alter: true }).then(() => {
+sequelize.sync({ alter: true }).then(async () => {
   console.log('Database synced successfully.');
+  
+  // Manual migration for SQLite if alter:true failed
+  try {
+    const [results] = await sequelize.query("PRAGMA table_info(Users)");
+    const columns = results.map(r => r.name);
+    
+    if (!columns.includes('darkMode')) {
+      await sequelize.query("ALTER TABLE Users ADD COLUMN darkMode BOOLEAN DEFAULT 1");
+      await sequelize.query("ALTER TABLE Users ADD COLUMN deadlineAlerts BOOLEAN DEFAULT 1");
+      await sequelize.query("ALTER TABLE Users ADD COLUMN streakReminders BOOLEAN DEFAULT 1");
+      await sequelize.query("ALTER TABLE Users ADD COLUMN reminderDays INTEGER DEFAULT 2");
+      console.log('Manual migration: Added missing columns to Users table.');
+    }
+  } catch (err) {
+    console.error('Migration check failed:', err.message);
+  }
+
+  // Create demo user if it doesn't exist
+  try {
+    const { User } = require('./models');
+    await User.findOrCreate({
+      where: { id: 'demo-user-id' },
+      defaults: {
+        email: 'demo@example.com',
+        name: 'Demo User',
+        password: 'demo-password-unused',
+        darkMode: true,
+        deadlineAlerts: true,
+        streakReminders: true,
+        reminderDays: 2
+      }
+    });
+    console.log('Demo user ensured.');
+  } catch (err) {
+    console.error('Failed to seed demo user:', err);
+  }
+
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });

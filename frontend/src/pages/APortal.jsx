@@ -29,21 +29,17 @@ export default function AIPortal() {
     if (!selectedCompany) return toast.error('Pick a company first!');
     setLoading(true);
     try {
-      // In a real app, this hits the AI generation endpoint
-      // Our backend has a mock AI insights route
-      const { data } = await analyticsAPI.getInsights();
-      // Filter or simulate specifically for the company
+      const { data } = await aiAPI.generateInsights(selectedCompany);
       setInsights({
-        company: selectedCompany,
-        summary: `Strategic preparation guide for ${selectedCompany} based on current platform trends and reported interview patterns.`,
+        company: data.company,
+        summary: `Strategic preparation guide for ${data.company} based on reported interview patterns and neural tactical analysis.`,
         tips: data.insights || [],
-        questions: [
-          `How would you scale ${selectedCompany}'s core architecture for 1B users?`,
-          `Discuss a time you had to make a trade-off between speed and quality.`,
-          `Implement a thread-safe singleton pattern suitable for ${selectedCompany}'s infrastructure.`
+        questions: data.mockQuestions || [
+          `How would you scale ${data.company}'s core architecture?`,
+          `Discuss a time you had to make a technical decision with limited data.`
         ]
       });
-      toast.success('Strategy generated!');
+      toast.success('Neural Link Synchronized!');
     } catch {
       toast.error('AI is a bit tired. Try again later.');
     } finally {
@@ -191,34 +187,55 @@ export default function AIPortal() {
                   </section>
                 </div>
                 
-                <div className="mt-8 pt-8 border-t border-white/5">
+                <div className="mt-8 pt-8 border-t border-white/5 space-y-8">
+                  <div>
+                    <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                       <BrainCircuit size={12} /> Strategic Preparation Roadmap
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                       {[
+                         { title: 'Research', desc: 'Deep dive into tech stack', icon: Search },
+                         { title: 'DSA Drill', desc: 'Focus on Graphs/Systems', icon: Target },
+                         { title: 'Mock Test', desc: 'Simulated environment', icon: PlayCircle },
+                         { title: 'Final Polish', desc: 'Refine behavioral stories', icon: Sparkles }
+                       ].map((step, i) => (
+                         <div key={i} className="p-4 bg-white/3 border border-white/5 rounded-2xl relative group overflow-hidden">
+                           <div className="absolute top-0 right-0 p-2 text-[8px] font-black text-white/10 group-hover:text-indigo-500/20 transition-colors">0{i+1}</div>
+                           <step.icon size={16} className="text-indigo-400 mb-3" />
+                           <h5 className="text-xs font-bold text-white mb-1">{step.title}</h5>
+                           <p className="text-[10px] text-slate-500 leading-tight">{step.desc}</p>
+                         </div>
+                       ))}
+                    </div>
+                  </div>
+
                   <button className="flex items-center gap-3 text-indigo-400 text-sm font-bold hover:text-indigo-300 transition-colors">
                     <PlayCircle size={18} />
-                    Start Mock Interview Session
+                    Start Guided Simulation Mode
                   </button>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="glass-card p-5 flex items-center gap-4">
-                  <div className="w-10 h-10 bg-indigo-600/10 rounded-xl flex items-center justify-center text-indigo-400">
+                <div className="glass-card p-5 flex items-center gap-4 group cursor-pointer hover:border-indigo-500/30 transition-all">
+                  <div className="w-10 h-10 bg-indigo-600/10 rounded-xl flex items-center justify-center text-indigo-400 group-hover:bg-indigo-600/20">
                     <BookOpen size={20} />
                   </div>
                   <div>
                     <h5 className="text-xs font-bold text-white">Engineering Blog</h5>
                     <p className="text-[10px] text-slate-500">Latest from {insights.company} Engineering</p>
                   </div>
-                  <ChevronRight size={14} className="ml-auto text-slate-700" />
+                  <ChevronRight size={14} className="ml-auto text-slate-700 group-hover:text-white transition-colors" />
                 </div>
-                <div className="glass-card p-5 flex items-center gap-4">
-                  <div className="w-10 h-10 bg-purple-600/10 rounded-xl flex items-center justify-center text-purple-400">
+                <div className="glass-card p-5 flex items-center gap-4 group cursor-pointer hover:border-purple-500/30 transition-all">
+                  <div className="w-10 h-10 bg-purple-600/10 rounded-xl flex items-center justify-center text-purple-400 group-hover:bg-purple-600/20">
                     <BrainCircuit size={20} />
                   </div>
                   <div>
                     <h5 className="text-xs font-bold text-white">System Design</h5>
                     <p className="text-[10px] text-slate-500">Common architectures & trade-offs</p>
                   </div>
-                  <ChevronRight size={14} className="ml-auto text-slate-700" />
+                  <ChevronRight size={14} className="ml-auto text-slate-700 group-hover:text-white transition-colors" />
                 </div>
               </div>
             </motion.div>

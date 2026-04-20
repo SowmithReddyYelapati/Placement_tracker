@@ -77,6 +77,8 @@ exports.getWeeklyActivity = async (req, res) => {
 exports.getDeadlineAlerts = async (req, res) => {
   try {
     const userId = req.user.id;
+    const leadDays = parseInt(req.query.days) || 1;
+    
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const todayStr = today.toISOString().split('T')[0];
@@ -85,17 +87,18 @@ exports.getDeadlineAlerts = async (req, res) => {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
+    const targetDate = new Date(today);
+    targetDate.setDate(targetDate.getDate() + leadDays);
+    const targetStr = targetDate.toISOString().split('T')[0];
+
     const activeStatuses = ['Applied', 'OA', 'Interview'];
 
-    const todayDeadlines = await Application.findAll({
-      where: { UserId: userId, deadline: todayStr, status: { [Op.in]: activeStatuses } },
-      include: [{ model: Company, attributes: ['name'], required: false }],
-      raw: true,
-      nest: true
-    });
-
-    const tomorrowDeadlines = await Application.findAll({
-      where: { UserId: userId, deadline: tomorrowStr, status: { [Op.in]: activeStatuses } },
+    const allUpcoming = await Application.findAll({
+      where: { 
+        UserId: userId, 
+        deadline: { [Op.between]: [todayStr, targetStr] },
+        status: { [Op.in]: activeStatuses } 
+      },
       include: [{ model: Company, attributes: ['name'], required: false }],
       raw: true,
       nest: true
@@ -118,13 +121,16 @@ exports.getDeadlineAlerts = async (req, res) => {
       await Application.update({ status: 'Missed' }, { where: { id: { [Op.in]: missedIds } } });
     }
 
-    const fmt = (arr) => arr.map(a => ({ id: a.id, role: a.role, company: a.Company?.name || 'Unknown' }));
+    const fmt = (item) => ({ id: item.id, role: item.role, company: item.Company?.name || 'Unknown', deadline: item.deadline });
 
-    res.json({
-      today: fmt(todayDeadlines),
-      tomorrow: fmt(tomorrowDeadlines),
-      missed: fmt(missedApps)
-    });
+    const results = {
+      today: allUpcoming.filter(a => a.deadline === todayStr).map(fmt),
+      tomorrow: allUpcoming.filter(a => a.deadline === tomorrowStr).map(fmt),
+      soon: allUpcoming.filter(a => a.deadline !== todayStr && a.deadline !== tomorrowStr).map(fmt),
+      missed: missedApps.map(fmt)
+    };
+
+    res.json(results);
   } catch (error) {
     res.status(500).json({ message: 'Failed to get deadline alerts', error: error.message });
   }

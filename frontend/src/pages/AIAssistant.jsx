@@ -33,29 +33,29 @@ const AIAssistant = () => {
         <motion.div 
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="inline-flex items-center gap-2 bg-indigo-500/10 text-indigo-400 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.3em] border border-indigo-500/20"
+          className="inline-flex items-center gap-2 bg-indigo-500/10 !text-[var(--accent-color)] px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.3em] border border-indigo-500/20 shadow-[0_0_20px_rgba(79,70,229,0.1)]"
         >
-          <Cpu size={14} className="animate-pulse" />
+          <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(99,102,241,1)]" />
           Neural Processor Active
         </motion.div>
-        <h1 className="text-5xl font-black text-white tracking-tighter italic">
-          Interview <span className="text-indigo-500">Intelligence</span>
+        <h1 className="text-5xl font-black !text-[var(--text-color)] tracking-tighter italic">
+          Interview <span className="!text-[var(--accent-color)]">Intelligence</span>
         </h1>
-        <p className="text-slate-500 text-lg max-w-2xl mx-auto">
+        <p className="text-slate-500 text-lg max-w-2xl mx-auto opacity-80">
           Inject target company data to generate tactical preparation strategies and behavioral models.
         </p>
       </div>
 
       <div className="glass-card p-10 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/10 blur-[100px] -z-10" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/5 blur-[100px] -z-10" />
         
         <form onSubmit={handleGenerateTips} className="relative max-w-3xl mx-auto">
           <div className="relative group">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 transition-colors" size={24} />
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:!text-[var(--accent-color)] transition-colors" size={24} />
             <input 
               type="text" 
               placeholder="Inject Company Name (e.g. OpenAI, Palantir, Nvidia)"
-              className="w-full pl-16 pr-44 py-6 rounded-3xl bg-white/5 border border-white/10 text-white placeholder:text-slate-600 focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all text-lg font-bold shadow-2xl"
+              className="w-full pl-16 pr-44 py-6 rounded-3xl bg-white/5 border border-white/10 !text-[var(--text-color)] placeholder:text-slate-500 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/50 outline-none transition-all text-lg font-bold shadow-2xl !bg-white/5"
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
               disabled={loading}
@@ -116,12 +116,12 @@ const AIAssistant = () => {
                 </div>
               </div>
 
-              <div className="pt-8 border-t border-white/5">
+              <div className="pt-8 border-t border-white/10">
                 <div className="flex items-center gap-3 mb-8">
                   <div className="w-8 h-8 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400">
                     <MessageSquare size={18} />
                   </div>
-                  <h3 className="text-2xl font-black text-white italic tracking-tight">Behavioral Simulation Models</h3>
+                  <h3 className="text-2xl font-black !text-[var(--text-color)] italic tracking-tight">Behavioral Simulation Models</h3>
                 </div>
                 <div className="space-y-4">
                   {tips.mockQuestions.map((q, idx) => (
@@ -130,10 +130,10 @@ const AIAssistant = () => {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.4 + (idx * 0.1) }}
-                      className="p-6 rounded-3xl bg-gradient-to-r from-white/5 to-transparent border border-white/5 text-slate-400 font-bold hover:text-white transition-colors cursor-pointer group"
+                      className="p-6 rounded-3xl bg-white/5 border border-white/10 text-slate-500 font-bold hover:!text-[var(--accent-color)] hover:bg-white/10 transition-all cursor-pointer group"
                     >
-                      <span className="text-indigo-500 font-black mr-4 text-xs tracking-widest uppercase">Query_0{idx + 1}</span> 
-                      {q}
+                      <span className="text-indigo-500 font-black mr-4 text-xs tracking-widest uppercase opacity-60">Query_0{idx + 1}</span> 
+                      <span className="!text-[var(--text-color)] opacity-80 group-hover:opacity-100">{q}</span>
                     </motion.div>
                   ))}
                 </div>
@@ -154,4 +154,3 @@ const AIAssistant = () => {
 };
 
 export default AIAssistant;
- Greenland
