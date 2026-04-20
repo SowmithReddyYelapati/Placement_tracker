@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import {
   Settings, Moon, Sun, Bell, User, Shield, ChevronRight,
   Info, Database, MapPin, Key, Loader2, Save
@@ -49,6 +50,8 @@ export default function SettingsPage() {
   const [darkMode, setDarkMode] = useState(true);
   const [deadlineAlerts, setDeadlineAlerts] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [streakReminders, setStreakReminders] = useState(true);
+  const [reminderDays, setReminderDays] = useState(2);
   const [form, setForm] = useState({
     name: user?.name || '',
     password: ''
