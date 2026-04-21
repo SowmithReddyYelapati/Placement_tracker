@@ -13,6 +13,7 @@ import {
   X
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { motion } from 'framer-motion';
 
 const navItems = [
   { name: 'Dashboard', path: '/', icon: LayoutDashboard, end: true },
