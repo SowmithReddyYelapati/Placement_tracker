@@ -12,6 +12,28 @@ import ApplicationModal from '../components/ApplicationModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 
+const Counter = ({ value }) => {
+  const [displayValue, setDisplayValue] = React.useState(0);
+  React.useEffect(() => {
+    let start = 0;
+    const end = parseInt(value);
+    if (isNaN(end) || end <= 0) { setDisplayValue(value); return; }
+    const duration = 1500;
+    const increment = end / (duration / 16);
+    const timer = setInterval(() => {
+      start += increment;
+      if (start >= end) {
+        setDisplayValue(end);
+        clearInterval(timer);
+      } else {
+        setDisplayValue(Math.floor(start));
+      }
+    }, 16);
+    return () => clearInterval(timer);
+  }, [value]);
+  return <span>{displayValue}</span>;
+};
+
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [weekly, setWeekly] = useState([]);
@@ -169,17 +191,28 @@ const Dashboard = () => {
             >
               <motion.div
                 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
-                className="bento-card relative overflow-hidden group h-full"
+                className="glass-card p-8 relative overflow-hidden group h-full hover:!border-indigo-500/30"
               >
-                <div className="flex justify-between items-start mb-4">
-                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide group-hover:text-indigo-400 transition-colors uppercase tracking-widest">{c.label}</span>
-                  <div className={`${c.color} ${c.bg} p-2 rounded-xl border ${c.border} group-hover:scale-110 transition-transform`}>
-                    <Icon size={17} />
+                <div className="flex justify-between items-start mb-6">
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] group-hover:!text-[var(--accent-color)] transition-all uppercase tracking-widest">{c.label}</span>
+                  <div className={`${c.color} ${c.bg} p-2.5 rounded-[1.25rem] border ${c.border} group-hover:scale-110 shadow-lg transition-all duration-500 group-hover:shadow-indigo-500/20`}>
+                    <Icon size={18} />
                   </div>
                 </div>
-                <div className="text-3xl md:text-4xl font-black !text-[var(--text-color)] group-hover:translate-x-1 transition-transform">{c.value}</div>
-                <div className="mt-2 text-[10px] font-bold text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity">View all →</div>
-                <div className={`absolute -bottom-6 -right-6 w-20 h-20 rounded-full blur-2xl opacity-15 ${c.bg} group-hover:opacity-25 transition-opacity`} />
+                
+                <div className="relative">
+                  <div className="text-4xl md:text-5xl font-black !text-[var(--text-color)] group-hover:translate-x-1 transition-transform tracking-tighter">
+                    <Counter value={c.value} />
+                  </div>
+                  <div className="h-1 w-8 !bg-[var(--accent-color)] mt-3 opacity-20 group-hover:w-12 transition-all duration-700" />
+                </div>
+
+                <div className="mt-4 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Neural Sync Active</span>
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                </div>
+
+                <div className={`absolute -bottom-8 -right-8 w-24 h-24 rounded-full blur-[60px] opacity-10 ${c.bg} group-hover:opacity-30 transition-all duration-1000`} />
               </motion.div>
             </Link>
           );
@@ -191,27 +224,28 @@ const Dashboard = () => {
         {dlCards.map((card, i) => (
           <motion.div
             key={i}
-            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + i * 0.07 }}
-            className={`glass-card p-5 ${card.glow}`}
+            initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15 + i * 0.07 }}
+            className={`glass-card p-6 border-l-4 ${card.count > 0 ? card.glow : 'border-transparent opacity-60'}`}
+            style={{ borderLeftColor: card.count > 0 ? (i === 0 ? '#ef4444' : i === 1 ? '#f59e0b' : '#64748b') : 'transparent' }}
           >
-            <div className="flex items-center gap-2 mb-3">
-              <div className={`w-2 h-2 rounded-full ${card.count > 0 ? card.dot + (i === 0 ? ' animate-pulse' : '') : 'bg-slate-700'}`} />
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">{card.label}</span>
+            <div className="flex items-center gap-3 mb-4">
+              <div className={`w-3 h-3 rounded-full ${card.count > 0 ? card.dot + (i === 0 ? ' animate-ping' : '') : 'bg-slate-700'}`} />
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">{card.label}</span>
             </div>
             {card.count === 0 ? (
-              <p className="text-2xl font-black text-slate-700">0</p>
+              <p className="text-3xl font-black text-slate-800 italic opacity-20">Clear</p>
             ) : (
               <>
-                <p className={`text-3xl font-black ${card.activeColor}`}>{card.count}</p>
-                <div className="mt-2.5 space-y-1.5">
+                <p className={`text-4xl font-black ${card.activeColor} tracking-tighter`}>{card.count}</p>
+                <div className="mt-4 space-y-2">
                   {card.items.slice(0, 2).map((d, j) => (
-                    <div key={j} className="flex items-center gap-1.5">
-                      <AlertCircle size={11} className="text-slate-600 shrink-0" />
-                      <p className="text-xs text-slate-400 truncate">{d.company} — {d.role}</p>
+                    <div key={j} className="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/5">
+                      <AlertCircle size={12} className="text-slate-600 shrink-0" />
+                      <p className="text-[11px] text-slate-300 truncate font-semibold">{d.company} <span className="opacity-40 mx-1">•</span> {d.role}</p>
                     </div>
                   ))}
                   {card.count > 2 && (
-                    <p className="text-xs text-slate-600">+{card.count - 2} more</p>
+                    <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest pl-2">+{card.count - 2} more intelligence nodes</p>
                   )}
                 </div>
               </>
