@@ -1,0 +1,17 @@
+{
+  "name": "PlaceTrack",
+  "short_name": "PlaceTrack",
+  "description": "Your intelligent placement tracking assistant",
+  "theme_color": "#050510",
+  "background_color": "#050510",
+  "display": "standalone",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/pwa-icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
